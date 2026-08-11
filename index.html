@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Shardul AI | Offline Chatbot</title>
+
+    <style>
+        /* =========================
+           ROOT VARIABLES
+        ========================== */
+
+        :root {
+            --bg: #eef2ff;
+            --card: rgba(255, 255, 255, 0.82);
+            --header: rgba(255, 255, 255, 0.72);
+            --text: #111827;
+            --muted: #6b7280;
+            --border: rgba(0, 0, 0, 0.08);
+
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #eef2ff;
+
+            --bot-bg: #f1f5f9;
+            --user-bg: linear-gradient(135deg, #4f46e5, #7c3aed);
+
+            --input-bg: rgba(255, 255, 255, 0.9);
+
+            --shadow:
+                0 25px 70px rgba(31, 41, 55, 0.15);
+        }
+
+        /* DARK MODE */
+
+        body.dark {
+            --bg: #080b14;
+            --card: rgba(17, 24, 39, 0.88);
+            --header: rgba(17, 24, 39, 0.75);
+            --text: #f9fafb;
+            --muted: #9ca3af;
+            --border: rgba(255, 255, 255, 0.08);
+
+            --primary: #6366f1;
+            --primary-dark: #818cf8;
+            --primary-light: rgba(99, 102, 241, 0.15);
+
+            --bot-bg: #1f2937;
+
+            --input-bg: rgba(31, 41, 55, 0.9);
+
+            --shadow:
+                0 25px 80px rgba(0, 0, 0, 0.45);
+        }
+
+
+        /* =========================
+           RESET
+        ========================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 10% 20%,
+                    rgba(99, 102, 241, 0.18),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 80%,
+                    rgba(124, 58, 237, 0.15),
+                    transparent 30%
+                ),
+                var(--bg);
+
+            color: var(--text);
+
+            transition:
+                background 0.3s ease,
+                color 0.3s ease;
+
+            overflow: hidden;
+        }
+
+
+        /* =========================
+           APP
+        ========================== */
+
+        .app {
+            width: 100%;
+            height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+        }
+
+
+        .chat-container {
+            width: min(1100px, 100%);
+            height: min(850px, 95vh);
+
+            display: flex;
+            flex-direction: column;
+
+            overflow: hidden;
+
+            background: var(--card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 28px;
+
+            box-shadow: var(--shadow);
+
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+
+            position: relative;
+        }
+
+
+        /* =========================
+           HEADER
+        ========================== */
+
+        .header {
+            min-height: 82px;
+
+            padding: 15px 22px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: var(--header);
+
+            border-bottom: 1px solid var(--border);
+
+            z-index: 10;
+        }
+
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+
+        .bot-logo {
+            width: 48px;
+            height: 48px;
+
+            border-radius: 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+
+            font-size: 23px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+
+            box-shadow:
+                0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+
+        .brand-text h1 {
+            font-size: 18px;
+            font-weight: 750;
+
+            letter-spacing: -0.3px;
+        }
+
+
+        .brand-text p {
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            margin-top: 4px;
+
+            font-size: 11px;
+
+            color: #16a34a;
+        }
+
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
+            background: #22c55e;
+
+            border-radius: 50%;
+
+            box-shadow:
+                0 0 0 4px rgba(34, 197, 94, 0.12);
+        }
+
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 12px;
+
+            background: var(--input-bg);
+
+            color: var(--text);
+
+            cursor: pointer;
+
+            font-size: 17px;
+
+            transition: 0.2s;
+        }
+
+
+        .icon-btn:hover {
+            transform: translateY(-2px);
+
+            background: var(--primary-light);
+
+            color: var(--primary);
+        }
+
+
+        /* =========================
+           QUICK QUESTIONS
+        ========================== */
+
+        .quick-section {
+            padding: 14px 22px 5px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+
+        .quick-title {
+            color: var(--muted);
+
+            font-size: 11px;
+
+            margin-bottom: 9px;
+
+            font-weight: 600;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.7px;
+        }
+
+
+        .quick-questions {
+            display: flex;
+
+            gap: 8px;
+
+            overflow-x: auto;
+
+            padding-bottom: 10px;
+
+            scrollbar-width: none;
+        }
+
+
+        .quick-questions::-webkit-scrollbar {
+            display: none;
+        }
+
+
+        .quick-btn {
+            white-space: nowrap;
+
+            border: 1px solid var(--border);
+
+            background: var(--input-bg);
+
+            color: var(--text);
+
+            border-radius: 20px;
+
+            padding: 8px 13px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+            transition: 0.2s;
+        }
+
+
+        .quick-btn:hover {
+            color: var(--primary);
+
+            border-color: var(--primary);
+
+            background: var(--primary-light);
+        }
+
+
+        /* =========================
+           CHAT AREA
+        ========================== */
+
+        .chat-box {
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding: 25px;
+
+            scroll-behavior: smooth;
+        }
+
+
+        .chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background: rgba(107, 114, 128, 0.25);
+
+            border-radius: 20px;
+        }
+
+
+        /* =========================
+           MESSAGES
+        ========================== */
+
+        .message {
+            display: flex;
+
+            gap: 10px;
+
+            margin-bottom: 20px;
+
+            animation:
+                messageIn 0.25s ease;
+        }
+
+
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 11px;
+
+            font-size: 15px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+
+            color: white;
+        }
+
+
+        .message.user .avatar {
+            order: 2;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #64748b,
+                    #334155
+                );
+        }
+
+
+        .message-content {
+            max-width: min(75%, 650px);
+        }
+
+
+        .message.user .message-content {
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: flex-end;
+        }
+
+
+        .bubble {
+            padding: 12px 15px;
+
+            border-radius: 16px;
+
+            font-size: 14px;
+
+            line-height: 1.55;
+
+            white-space: pre-wrap;
+
+            word-wrap: break-word;
+        }
+
+
+        .message.bot .bubble {
+            background: var(--bot-bg);
+
+            border-top-left-radius: 5px;
+        }
+
+
+        .message.user .bubble {
+            background: var(--user-bg);
+
+            color: white;
+
+            border-top-right-radius: 5px;
+
+            box-shadow:
+                0 5px 18px rgba(79, 70, 229, 0.2);
+        }
+
+
+        .message-meta {
+            margin-top: 5px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+
+        .copy-btn {
+            border: none;
+
+            background: transparent;
+
+            color: var(--muted);
+
+            cursor: pointer;
+
+            font-size: 10px;
+        }
+
+
+        .copy-btn:hover {
+            color: var(--primary);
+        }
+
+
+        /* =========================
+           TYPING INDICATOR
+        ========================== */
+
+        .typing {
+            display: none;
+
+            align-items: center;
+
+            gap: 10px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .typing.show {
+            display: flex;
+        }
+
+
+        .typing-bubble {
+            padding: 13px 16px;
+
+            background: var(--bot-bg);
+
+            border-radius: 16px;
+
+            display: flex;
+
+            gap: 4px;
+        }
+
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+
+            background: var(--muted);
+
+            border-radius: 50%;
+
+            animation: typing 1.2s infinite;
+        }
+
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+
+        @keyframes typing {
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+
+            30% {
+                transform: translateY(-5px);
+                opacity: 1;
+            }
+        }
+
+
+        /* =========================
+           INPUT AREA
+        ========================== */
+
+        .input-wrapper {
+            padding: 14px 20px 18px;
+
+            border-top: 1px solid var(--border);
+
+            background: var(--header);
+        }
+
+
+        .input-box {
+            display: flex;
+
+            align-items: flex-end;
+
+            gap: 9px;
+
+            padding: 8px;
+
+            border-radius: 17px;
+
+            border: 1px solid var(--border);
+
+            background: var(--input-bg);
+
+            transition: 0.2s;
+        }
+
+
+        .input-box:focus-within {
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(79, 70, 229, 0.1);
+        }
+
+
+        textarea {
+            flex: 1;
+
+            resize: none;
+
+            max-height: 120px;
+
+            min-height: 42px;
+
+            padding: 11px 10px;
+
+            border: none;
+
+            outline: none;
+
+            background: transparent;
+
+            color: var(--text);
+
+            font-size: 14px;
+
+            line-height: 1.4;
+        }
+
+
+        textarea::placeholder {
+            color: var(--muted);
+        }
+
+
+        .send-btn {
+            width: 42px;
+            height: 42px;
+
+            flex-shrink: 0;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 18px;
+
+            transition: 0.2s;
+        }
+
+
+        .send-btn:hover {
+            transform: scale(1.05);
+
+            box-shadow:
+                0 6px 18px rgba(79, 70, 229, 0.3);
+        }
+
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+
+        .input-footer {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-top: 7px;
+
+            padding: 0 4px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+
+        /* =========================
+           EMPTY / WELCOME
+        ========================== */
+
+        .welcome {
+            text-align: center;
+
+            padding: 25px 15px 20px;
+        }
+
+
+        .welcome-icon {
+            width: 65px;
+            height: 65px;
+
+            margin: 0 auto 15px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 20px;
+
+            font-size: 29px;
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+
+            box-shadow:
+                0 12px 35px
+                rgba(79, 70, 229, 0.25);
+        }
+
+
+        .welcome h2 {
+            font-size: 21px;
+
+            margin-bottom: 7px;
+        }
+
+
+        .welcome p {
+            max-width: 520px;
+
+            margin: auto;
+
+            color: var(--muted);
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================
+           TOAST
+        ========================== */
+
+        .toast {
+            position: fixed;
+
+            bottom: 25px;
+            left: 50%;
+
+            transform:
+                translate(-50%, 20px);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            background: #111827;
+
+            color: white;
+
+            padding: 10px 16px;
+
+            border-radius: 10px;
+
+            font-size: 12px;
+
+            transition: 0.3s;
+
+            z-index: 100;
+        }
+
+
+        .toast.show {
+            opacity: 1;
+
+            transform:
+                translate(-50%, 0);
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================== */
+
+        @media (max-width: 700px) {
+
+            body {
+                overflow: hidden;
+            }
+
+            .app {
+                padding: 0;
+            }
+
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+
+                max-height: none;
+
+                border-radius: 0;
+
+                border: none;
+            }
+
+            .header {
+                padding: 13px 15px;
+            }
+
+            .quick-section {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .chat-box {
+                padding: 18px 14px;
+            }
+
+            .input-wrapper {
+                padding: 10px 12px 13px;
+            }
+
+            .message-content {
+                max-width: 82%;
+            }
+
+            .bot-logo {
+                width: 43px;
+                height: 43px;
+            }
+
+            .brand-text h1 {
+                font-size: 16px;
+            }
+
+            .brand-text p {
+                font-size: 10px;
+            }
+
+            .icon-btn {
+                width: 37px;
+                height: 37px;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <div class="chat-container">
+
+        <!-- HEADER -->
+        <header class="header">
+
+            <div class="brand">
+
+                <div class="bot-logo">
+                    ✦
+                </div>
+
+                <div class="brand-text">
+
+                    <h1>Shardul AI</h1>
+
+                    <p>Offline Intelligent Assistant</p>
+
+                    <div class="status">
+                        <span class="status-dot"></span>
+                        Offline Mode
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <button
+                    class="icon-btn"
+                    id="themeBtn"
+                    title="Change theme">
+                    ☾
+                </button>
+
+                <button
+                    class="icon-btn"
+                    id="clearBtn"
+                    title="Clear conversation">
+                    ⌫
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- QUICK QUESTIONS -->
+        <section class="quick-section">
+
+            <div class="quick-title">
+                Quick Questions
+            </div>
+
+            <div class="quick-questions">
+
+                <button
+                    class="quick-btn"
+                    onclick="quickQuestion('Who are you?')">
+                    Who are you?
+                </button>
+
+                <button
+                    class="quick-btn"
+                    onclick="quickQuestion('What can you do?')">
+                    What can you do?
+                </button>
+
+                <button
+                    class="quick-btn"
+                    onclick="quickQuestion('What is HTML?')">
+                    What is HTML?
+                </button>
+
+                <button
+                    class="quick-btn"
+                    onclick="quickQuestion('What is CSS?')">
+                    What is CSS?
+                </button>
+
+                <button
+                    class="quick-btn"
+                    onclick="quickQuestion('What is JavaScript?')">
+                    What is JavaScript?
+                </button>
+
+                <button
+                    class="quick-btn"
+                    onclick="quickQuestion('Who made you?')">
+                    Who made you?
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- CHAT -->
+        <main
+            class="chat-box"
+            id="chatBox">
+
+            <div class="welcome" id="welcome">
+
+                <div class="welcome-icon">
+                    ✦
+                </div>
+
+                <h2>
+                    Welcome to Shardul AI
+                </h2>
+
+                <p>
+                    I am an offline chatbot developed by
+                    Shradul using HTML, CSS, and JavaScript.
+                    Ask me a question and I will do my best
+                    to provide an appropriate answer.
+                </p>
+
+            </div>
+
+
+            <!-- TYPING INDICATOR -->
+
+            <div
+                class="typing"
+                id="typing">
+
+                <div class="avatar">
+                    ✦
+                </div>
+
+                <div class="typing-bubble">
+
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+
+                </div>
+
+            </div>
+
+        </main>
+
+
+        <!-- INPUT -->
+        <div class="input-wrapper">
+
+            <div class="input-box">
+
+                <textarea
+                    id="userInput"
+                    rows="1"
+                    maxlength="500"
+                    placeholder="Ask me anything..."
+                    aria-label="Message">
+                </textarea>
+
+                <button
+                    class="send-btn"
+                    id="sendBtn"
+                    title="Send message">
+                    ➤
+                </button>
+
+            </div>
+
+
+            <div class="input-footer">
+
+                <span>
+                    Offline chatbot • Made by Shradul
+                </span>
+
+                <span id="counter">
+                    0 / 500
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- TOAST -->
+<div
+    class="toast"
+    id="toast">
+</div>
+
+
+<script>
+
+    /* ==========================================
+       ELEMENTS
+    ========================================== */
+
+    const chatBox =
+        document.getElementById("chatBox");
+
+    const userInput =
+        document.getElementById("userInput");
+
+    const sendBtn =
+        document.getElementById("sendBtn");
+
+    const typing =
+        document.getElementById("typing");
+
+    const welcome =
+        document.getElementById("welcome");
+
+    const themeBtn =
+        document.getElementById("themeBtn");
+
+    const clearBtn =
+        document.getElementById("clearBtn");
+
+    const counter =
+        document.getElementById("counter");
+
+    const toast =
+        document.getElementById("toast");
+
+
+    /* ==========================================
+       OFFLINE KNOWLEDGE BASE
+    ========================================== */
+
+    const knowledge = {
+
+        "hello":
+            "Hello. How can I help you?",
+
+        "hi":
+            "Hello. How can I help you?",
+
+        "hey":
+            "Hello. How can I help you?",
+
+        "good morning":
+            "Good morning. How can I assist you today?",
+
+        "good afternoon":
+            "Good afternoon. How can I assist you today?",
+
+        "good evening":
+            "Good evening. How can I assist you today?",
+
+        "how are you":
+            "I am functioning properly and ready to answer your questions.",
+
+        "what is your name":
+            "My name is Shardul AI. I am an offline chatbot.",
+
+        "who are you":
+            "I am Shardul AI, an offline chatbot developed using HTML, CSS, and JavaScript.",
+
+        "who made you":
+            "I was developed by Shradul.",
+
+        "who created you":
+            "I was created by Shradul.",
+
+        "who is your developer":
+            "My developer is Shradul.",
+
+        "what can you do":
+            "I can answer predefined questions, explain basic concepts, provide information from my offline knowledge base, and maintain a local conversation history.",
+
+        "are you online":
+            "No. I am designed to work offline. I do not require an internet connection or an external API.",
+
+        "do you need internet":
+            "No. I can run without an internet connection because my knowledge base is stored locally in this application.",
+
+        "what is html":
+            "HTML stands for HyperText Markup Language. It is used to create the structure and content of web pages.",
+
+        "what is css":
+            "CSS stands for Cascading Style Sheets. It is used to control the appearance, layout, colors, spacing, and design of web pages.",
+
+        "what is javascript":
+            "JavaScript is a programming language used to create interactive and dynamic behavior on websites.",
+
+        "what is programming":
+            "Programming is the process of writing instructions that computers can execute to perform specific tasks.",
+
+        "what is a website":
+            "A website is a collection of connected web pages and resources that can be accessed through a web browser.",
+
+        "what is a browser":
+            "A web browser is software used to access and display websites and web applications.",
+
+        "what is ai":
+            "AI stands for Artificial Intelligence. It refers to computer systems designed to perform tasks that normally require human intelligence.",
+
+        "what is artificial intelligence":
+            "Artificial Intelligence is a field of computer science focused on creating systems that can perform tasks such as understanding information, recognizing patterns, and making decisions.",
+
+        "what is chatbot":
+            "A chatbot is a software application designed to communicate with users through text or voice.",
+
+        "what is an offline chatbot":
+            "An offline chatbot is a chatbot that operates locally without requiring an internet connection or a remote AI service.",
+
+        "what is localstorage":
+            "localStorage is a browser feature that allows websites to store small amounts of data locally on a user's device.",
+
+        "what is dom":
+            "DOM stands for Document Object Model. It represents the structure of an HTML document and allows JavaScript to interact with its elements.",
+
+        "what is frontend":
+            "Frontend development focuses on the parts of a website or application that users see and interact with.",
+
+        "what is backend":
+            "Backend development focuses on server-side logic, databases, APIs, authentication, and other services that support an application.",
+
+        "what is api":
+            "API stands for Application Programming Interface. It allows different software systems to communicate with each other.",
+
+        "what is github":
+            "GitHub is a platform used to store, manage, share, and collaborate on software development projects.",
+
+        "what is git":
+            "Git is a version control system used to track changes in files and collaborate on software projects.",
+
+        "what is python":
+            "Python is a high-level programming language known for its readable syntax and broad range of applications.",
+
+        "what is java":
+            "Java is a general-purpose programming language widely used for software, web, enterprise, and Android-related development.",
+
+        "what is c":
+            "C is a general-purpose programming language commonly used for system programming, embedded software, and performance-sensitive applications.",
+
+        "what is c++":
+            "C++ is a general-purpose programming language that extends C with features such as object-oriented programming.",
+
+        "what is database":
+            "A database is an organized system for storing, managing, and retrieving information.",
+
+        "what is sql":
+            "SQL stands for Structured Query Language. It is used to work with relational databases.",
+
+        "what is software":
+            "Software is a collection of programs and instructions that tell a computer how to perform tasks.",
+
+        "what is hardware":
+            "Hardware refers to the physical components of a computer, such as the processor, memory, storage, keyboard, and display.",
+
+        "what is computer":
+            "A computer is an electronic device that processes data according to programmed instructions.",
+
+        "how to learn programming":
+            "Start with one programming language, learn the fundamentals, practice regularly, build small projects, and gradually work on more challenging applications.",
+
+        "how to learn html":
+            "Learn HTML elements, attributes, headings, paragraphs, links, images, forms, semantic elements, and page structure. Practice by building simple web pages.",
+
+        "how to learn css":
+            "Start with selectors, colors, fonts, spacing, the box model, Flexbox, Grid, responsive design, and then practice by recreating real interfaces.",
+
+        "how to learn javascript":
+            "Start with variables, data types, conditions, loops, functions, arrays, objects, DOM manipulation, events, and then build small projects.",
+
+        "thank you":
+            "You're welcome.",
+
+        "thanks":
+            "You're welcome.",
+
+        "goodbye":
+            "Goodbye. Thank you for using Shardul AI.",
+
+        "bye":
+            "Goodbye. Have a great day."
+    };
+
+
+    /* ==========================================
+       FALLBACK RESPONSE
+    ========================================== */
+
+    const fallbackResponse =
+        "I'm sorry, but I don't have an appropriate answer to that question yet. It may be a general or unsupported question, and I am still under development. Please try asking another question.";
+
+
+    /* ==========================================
+       NORMALIZE TEXT
+    ========================================== */
+
+    function normalize(text) {
+
+        return text
+            .toLowerCase()
+            .trim()
+            .replace(/[?!.,]/g, "")
+            .replace(/\s+/g, " ");
+
+    }
+
+
+    /* ==========================================
+       GET RESPONSE
+    ========================================== */
+
+    function getResponse(question) {
+
+        const normalized =
+            normalize(question);
+
+
+        /* Exact match */
+
+        if (knowledge[normalized]) {
+            return knowledge[normalized];
+        }
+
+
+        /* Partial matching */
+
+        for (const key in knowledge) {
+
+            if (
+                normalized.includes(key) ||
+                key.includes(normalized)
+            ) {
+                return knowledge[key];
+            }
+        }
+
+
+        /* Keyword matching */
+
+        const keywordResponses = [
+
+            {
+                words: ["html", "language"],
+                answer:
+                    knowledge["what is html"]
+            },
+
+            {
+                words: ["css", "style"],
+                answer:
+                    knowledge["what is css"]
+            },
+
+            {
+                words: ["javascript", "js"],
+                answer:
+                    knowledge["what is javascript"]
+            },
+
+            {
+                words: ["artificial", "intelligence", "ai"],
+                answer:
+                    knowledge["what is artificial intelligence"]
+            },
+
+            {
+                words: ["programming", "program"],
+                answer:
+                    knowledge["what is programming"]
+            },
+
+            {
+                words: ["chatbot", "bot"],
+                answer:
+                    knowledge["what is chatbot"]
+            },
+
+            {
+                words: ["internet", "online"],
+                answer:
+                    knowledge["are you online"]
+            }
+
+        ];
+
+
+        for (const item of keywordResponses) {
+
+            const matches =
+                item.words.filter(word =>
+                    normalized.includes(word)
+                ).length;
+
+            if (matches >= 1) {
+                return item.answer;
+            }
+        }
+
+
+        return fallbackResponse;
+    }
+
+
+    /* ==========================================
+       TIME
+    ========================================== */
+
+    function getTime() {
+
+        const now = new Date();
+
+        return now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+    }
+
+
+    /* ==========================================
+       ADD MESSAGE
+    ========================================== */
+
+    function addMessage(text, sender, save = true) {
+
+        if (welcome) {
+            welcome.style.display = "none";
+        }
+
+
+        const message =
+            document.createElement("div");
+
+        message.className =
+            `message ${sender}`;
+
+
+        const avatar =
+            document.createElement("div");
+
+        avatar.className =
+            "avatar";
+
+        avatar.textContent =
+            sender === "bot" ? "✦" : "U";
+
+
+        const content =
+            document.createElement("div");
+
+        content.className =
+            "message-content";
+
+
+        const bubble =
+            document.createElement("div");
+
+        bubble.className =
+            "bubble";
+
+        bubble.textContent =
+            text;
+
+
+        const meta =
+            document.createElement("div");
+
+        meta.className =
+            "message-meta";
+
+
+        const time =
+            document.createElement("span");
+
+        time.textContent =
+            getTime();
+
+
+        meta.appendChild(time);
+
+
+        if (sender === "bot") {
+
+            const copy =
+                document.createElement("button");
+
+            copy.className =
+                "copy-btn";
+
+            copy.textContent =
+                "Copy";
+
+            copy.onclick =
+                function () {
+
+                    navigator.clipboard
+                        .writeText(text)
+                        .then(() => {
+                            showToast(
+                                "Response copied"
+                            );
+                        })
+                        .catch(() => {
+                            showToast(
+                                "Unable to copy"
+                            );
+                        });
+
+                };
+
+
+            meta.appendChild(copy);
+        }
+
+
+        content.appendChild(bubble);
+
+        content.appendChild(meta);
+
+
+        message.appendChild(avatar);
+
+        message.appendChild(content);
+
+
+        chatBox.insertBefore(
+            message,
+            typing
+        );
+
+
+        scrollToBottom();
+
+
+        if (save) {
+
+            saveMessage({
+                text: text,
+                sender: sender,
+                time: getTime()
+            });
+
+        }
+
+    }
+
+
+    /* ==========================================
+       SEND MESSAGE
+    ========================================== */
+
+    function sendMessage() {
+
+        const question =
+            userInput.value.trim();
+
+
+        if (!question) {
+            return;
+        }
+
+
+        addMessage(
+            question,
+            "user"
+        );
+
+
+        userInput.value = "";
+
+        updateCounter();
+
+        autoResize();
+
+
+        typing.classList.add("show");
+
+        scrollToBottom();
+
+
+        const delay =
+            Math.min(
+                1100,
+                Math.max(
+                    450,
+                    question.length * 12
+                )
+            );
+
+
+        setTimeout(() => {
+
+            typing.classList.remove("show");
+
+
+            const answer =
+                getResponse(question);
+
+
+            addMessage(
+                answer,
+                "bot"
+            );
+
+        }, delay);
+
+    }
+
+
+    /* ==========================================
+       QUICK QUESTION
+    ========================================== */
+
+    function quickQuestion(question) {
+
+        userInput.value =
+            question;
+
+        sendMessage();
+
+    }
+
+
+    /* ==========================================
+       SCROLL
+    ========================================== */
+
+    function scrollToBottom() {
+
+        setTimeout(() => {
+
+            chatBox.scrollTop =
+                chatBox.scrollHeight;
+
+        }, 50);
+
+    }
+
+
+    /* ==========================================
+       LOCAL STORAGE
+    ========================================== */
+
+    function saveMessage(message) {
+
+        const history =
+            JSON.parse(
+                localStorage.getItem(
+                    "shradulChatHistory"
+                )
+            ) || [];
+
+
+        history.push(message);
+
+
+        /* Keep last 100 messages */
+
+        if (history.length > 100) {
+            history.shift();
+        }
+
+
+        localStorage.setItem(
+            "shradulChatHistory",
+            JSON.stringify(history)
+        );
+
+    }
+
+
+    /* ==========================================
+       LOAD CHAT HISTORY
+    ========================================== */
+
+    function loadHistory() {
+
+        const history =
+            JSON.parse(
+                localStorage.getItem(
+                    "shradulChatHistory"
+                )
+            ) || [];
+
+
+        if (history.length === 0) {
+            return;
+        }
+
+
+        welcome.style.display =
+            "none";
+
+
+        history.forEach(message => {
+
+            addMessage(
+                message.text,
+                message.sender,
+                false
+            );
+
+        });
+
+
+        scrollToBottom();
+
+    }
+
+
+    /* ==========================================
+       CLEAR CHAT
+    ========================================== */
+
+    clearBtn.addEventListener(
+        "click",
+        function () {
+
+            const confirmed =
+                confirm(
+                    "Are you sure you want to clear the conversation?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            localStorage.removeItem(
+                "shradulChatHistory"
+            );
+
+
+            const messages =
+                chatBox.querySelectorAll(
+                    ".message"
+                );
+
+
+            messages.forEach(message => {
+                message.remove();
+            });
+
+
+            welcome.style.display =
+                "block";
+
+
+            showToast(
+                "Conversation cleared"
+            );
+
+        }
+    );
+
+
+    /* ==========================================
+       DARK / LIGHT MODE
+    ========================================== */
+
+    function loadTheme() {
+
+        const theme =
+            localStorage.getItem(
+                "shradulTheme"
+            );
+
+
+        if (theme === "dark") {
+
+            document.body.classList.add(
+                "dark"
+            );
+
+            themeBtn.textContent =
+                "☀";
+
+        } else {
+
+            themeBtn.textContent =
+                "☾";
+
+        }
+
+    }
+
+
+    themeBtn.addEventListener(
+        "click",
+        function () {
+
+            document.body.classList.toggle(
+                "dark"
+            );
+
+
+            const dark =
+                document.body.classList.contains(
+                    "dark"
+                );
+
+
+            localStorage.setItem(
+                "shradulTheme",
+                dark ? "dark" : "light"
+            );
+
+
+            themeBtn.textContent =
+                dark ? "☀" : "☾";
+
+        }
+    );
+
+
+    /* ==========================================
+       CHARACTER COUNTER
+    ========================================== */
+
+    function updateCounter() {
+
+        counter.textContent =
+            `${userInput.value.length} / 500`;
+
+    }
+
+
+    userInput.addEventListener(
+        "input",
+        function () {
+
+            updateCounter();
+
+            autoResize();
+
+        }
+    );
+
+
+    /* ==========================================
+       AUTO RESIZE TEXTAREA
+    ========================================== */
+
+    function autoResize() {
+
+        userInput.style.height =
+            "auto";
+
+
+        userInput.style.height =
+            Math.min(
+                userInput.scrollHeight,
+                120
+            ) + "px";
+
+    }
+
+
+    /* ==========================================
+       ENTER KEY
+    ========================================== */
+
+    userInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+
+            }
+
+        }
+    );
+
+
+    /* ==========================================
+       SEND BUTTON
+    ========================================== */
+
+    sendBtn.addEventListener(
+        "click",
+        sendMessage
+    );
+
+
+    /* ==========================================
+       TOAST
+    ========================================== */
+
+    let toastTimer;
+
+
+    function showToast(message) {
+
+        toast.textContent =
+            message;
+
+
+        toast.classList.add(
+            "show"
+        );
+
+
+        clearTimeout(
+            toastTimer
+        );
+
+
+        toastTimer =
+            setTimeout(() => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            }, 1800);
+
+    }
+
+
+    /* ==========================================
+       INITIALIZE
+    ========================================== */
+
+    loadTheme();
+
+    loadHistory();
+
+    updateCounter();
+
+    userInput.focus();
+
+</script>
+
+</body>
+</html>
